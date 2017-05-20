@@ -1,0 +1,163 @@
+<html>
+<head>
+<title>GomokuAI.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(204,120,50); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(128,128,128); }
+.s3 { color: rgb(104,151,187); }
+.s4 { color: rgb(98,151,85); font-style: italic; }
+.s5 { color: rgb(98,151,85); font-weight: bold; font-style: italic; }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+GomokuAI.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">import </span><span class="s1">java.util.ArrayList</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.util.Collection</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.util.Set</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">class </span><span class="s1">GomokuAI { 
+ 
+    </span><span class="s2">// Константы</span><span class="s1"> 
+    </span><span class="s0">private static final int </span><span class="s1">MINMAX_DEPTH = </span><span class="s3">3</span><span class="s0">;</span><span class="s2">//4;</span><span class="s1"> 
+     
+    </span><span class="s2">// Поля</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">GomokuBoard.Piece computerPiece</span><span class="s0">;</span><span class="s1"> 
+ 
+     
+    </span><span class="s4">/** 
+     * Инициализация AI 
+     * </span><span class="s5">@param </span><span class="s4">computerPiece символ компьютера (X или O) 
+     */</span><span class="s1"> 
+    GomokuAI(GomokuBoard.Piece computerPiece) { 
+ 
+        </span><span class="s0">this</span><span class="s1">.computerPiece = computerPiece</span><span class="s0">;</span><span class="s1"> 
+ 
+    } 
+     
+    </span><span class="s0">private class </span><span class="s1">Result { 
+        </span><span class="s0">private int </span><span class="s1">score</span><span class="s0">;</span><span class="s1"> 
+         
+        ArrayList&lt;GomokuGameNode&gt; gameNodes</span><span class="s0">;</span><span class="s1"> 
+        Result() { 
+            gameNodes = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;()</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">this</span><span class="s1">.score = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+        } 
+         
+        Move getMove() { 
+            Move move = </span><span class="s0">null;</span><span class="s1"> 
+            GomokuGameNode result = gameNodes.get(</span><span class="s3">0</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">if </span><span class="s1">(result != </span><span class="s0">null</span><span class="s1">) { 
+                move = result.getMove()</span><span class="s0">;</span><span class="s1"> 
+            } 
+            </span><span class="s0">return </span><span class="s1">move</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+        </span><span class="s0">int </span><span class="s1">getScore() { 
+            </span><span class="s0">return </span><span class="s1">score</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+        </span><span class="s0">void </span><span class="s1">setScore(</span><span class="s0">int </span><span class="s1">score) { 
+            </span><span class="s0">this</span><span class="s1">.score = score</span><span class="s0">;</span><span class="s1"> 
+        } 
+         
+        </span><span class="s0">void </span><span class="s1">add(GomokuGameNode node) { 
+            </span><span class="s0">this</span><span class="s1">.gameNodes.add(node)</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+        </span><span class="s0">void </span><span class="s1">addAll(Collection&lt;GomokuGameNode&gt; c) { 
+            </span><span class="s0">this</span><span class="s1">.gameNodes.addAll(c)</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+    } 
+     
+    </span><span class="s0">private </span><span class="s1">Result minimaxHelper(GomokuGameNode node</span><span class="s0">, int </span><span class="s1">depth</span><span class="s0">, int </span><span class="s1">alpha</span><span class="s0">, int </span><span class="s1">beta) { 
+        Result result</span><span class="s0">;</span><span class="s1"> 
+         
+        Set&lt;GomokuGameNode&gt; childNodes = node.getChildren()</span><span class="s0">;</span><span class="s1"> 
+         
+        </span><span class="s0">for </span><span class="s1">(GomokuGameNode child : childNodes) { 
+            </span><span class="s0">if </span><span class="s1">(child.isComputerWin()) { 
+                result = </span><span class="s0">new </span><span class="s1">Result()</span><span class="s0">;</span><span class="s1"> 
+                result.setScore(child.getObjectiveValue(computerPiece))</span><span class="s0">;</span><span class="s1"> 
+                result.add(child)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">return </span><span class="s1">result</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+         
+        result = minimax(node</span><span class="s0">, </span><span class="s1">depth</span><span class="s0">, </span><span class="s1">alpha</span><span class="s0">, </span><span class="s1">beta</span><span class="s0">, true</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+         
+        </span><span class="s0">return </span><span class="s1">result</span><span class="s0">;</span><span class="s1"> 
+    } 
+     
+    </span><span class="s0">private </span><span class="s1">Result minimax(GomokuGameNode node</span><span class="s0">, int </span><span class="s1">depth</span><span class="s0">, int </span><span class="s1">alpha</span><span class="s0">, int </span><span class="s1">beta</span><span class="s0">, boolean </span><span class="s1">needMax) { 
+        </span><span class="s0">if </span><span class="s1">(depth &lt;= </span><span class="s3">0 </span><span class="s1">|| node.isTerminalNode()) { 
+            Result result = </span><span class="s0">new </span><span class="s1">Result()</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">int </span><span class="s1">score = node.getObjectiveValue(computerPiece)</span><span class="s0">;</span><span class="s1"> 
+            result.setScore(score)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">return </span><span class="s1">result</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+        Result best = </span><span class="s0">new </span><span class="s1">Result()</span><span class="s0">;</span><span class="s1"> 
+         
+        </span><span class="s0">for </span><span class="s1">(GomokuGameNode child : node.getChildren()) { 
+            Result result2 = minimax(child</span><span class="s0">, </span><span class="s1">depth-</span><span class="s3">1</span><span class="s0">, </span><span class="s1">alpha</span><span class="s0">, </span><span class="s1">beta</span><span class="s0">, </span><span class="s1">!needMax)</span><span class="s0">;</span><span class="s1"> 
+             
+            </span><span class="s0">int </span><span class="s1">score = result2.getScore()</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">if </span><span class="s1">(needMax) {  </span><span class="s2">// Do Max</span><span class="s1"> 
+                </span><span class="s0">if </span><span class="s1">(score &gt; alpha) { 
+                    alpha = score</span><span class="s0">;</span><span class="s1"> 
+                    best = </span><span class="s0">new </span><span class="s1">Result()</span><span class="s0">;</span><span class="s1"> 
+                    best.add(child)</span><span class="s0">;</span><span class="s1"> 
+                    best.addAll(result2.gameNodes)</span><span class="s0">;</span><span class="s1"> 
+                } 
+                </span><span class="s0">if </span><span class="s1">(beta &lt;= alpha) { 
+                    </span><span class="s0">break;</span><span class="s1"> 
+                } 
+            } </span><span class="s0">else </span><span class="s1">{ </span><span class="s2">// Do Min</span><span class="s1"> 
+                </span><span class="s0">if </span><span class="s1">(score &lt; beta) { 
+                     
+                    best = </span><span class="s0">new </span><span class="s1">Result()</span><span class="s0">;</span><span class="s1"> 
+                    best.add(child)</span><span class="s0">;</span><span class="s1"> 
+                    best.addAll(result2.gameNodes)</span><span class="s0">;</span><span class="s1"> 
+                     
+                    beta = score</span><span class="s0">;</span><span class="s1"> 
+                } 
+                </span><span class="s0">if </span><span class="s1">(beta &lt;= alpha) { 
+                    </span><span class="s0">break;</span><span class="s1"> 
+                } 
+            } 
+        } 
+        </span><span class="s0">int </span><span class="s1">retval = needMax ? alpha : beta</span><span class="s0">;</span><span class="s1">         
+        best.setScore(retval)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">return </span><span class="s1">best</span><span class="s0">;</span><span class="s1"> 
+    } 
+     
+    </span><span class="s4">/** 
+     * Даны игровые ситуации, выбирает лучшую 
+     * </span><span class="s5">@param </span><span class="s4">board игровая доска 
+     * </span><span class="s5">@return </span><span class="s4">ход (row, col) 
+     */</span><span class="s1"> 
+    Move getMove(GomokuBoard board) { 
+        Move move</span><span class="s0">;</span><span class="s1"> 
+ 
+        GomokuGameNode node = </span><span class="s0">new </span><span class="s1">GomokuGameNode(board</span><span class="s0">, </span><span class="s1">computerPiece)</span><span class="s0">;</span><span class="s1"> 
+         
+        </span><span class="s2">// Вызывает Min Max</span><span class="s1"> 
+        Result result = </span><span class="s0">this</span><span class="s1">.minimaxHelper(node</span><span class="s0">, </span><span class="s1">MINMAX_DEPTH</span><span class="s0">, </span><span class="s1">Integer.MIN_VALUE</span><span class="s0">, </span><span class="s1">Integer.MAX_VALUE)</span><span class="s0">;</span><span class="s1"> 
+ 
+        move  = result.getMove()</span><span class="s0">;</span><span class="s1"> 
+         
+        </span><span class="s0">return </span><span class="s1">move</span><span class="s0">;</span><span class="s1"> 
+    } 
+} </span><span class="s2">// конец класса GomokuAI</span><span class="s1"> 
+</span></pre>
+</body>
+</html>
